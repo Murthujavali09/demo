@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Know Your Weather{% endblock %}
+{% block content %}
+<main class="landing">
+  <h1>Know Your Weather</h1>
+  <p class="subtitle">Enter your location</p>
+
+  {% if error %}
+  <p class="error-msg">{{ error }}</p>
+  {% endif %}
+
+  <form class="search-form" action="{{ url_for('weather_page') }}" method="get">
+    <input type="text" name="city" placeholder="e.g. London, Tokyo" required autofocus>
+    <select name="units" aria-label="Units">
+      <option value="metric">Metric (°C)</option>
+      <option value="imperial">Imperial (°F)</option>
+    </select>
+    <button type="submit" class="btn primary">Get Weather</button>
+  </form>
+
+  <p class="or">Or</p>
+  <a href="{{ url_for('locate') }}" class="btn secondary">Auto Locate</a>
+</main>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ current.location }} — Weather{% endblock %}
+{% block content %}
+<main class="weather-app">
+  <header class="top-bar">
+    <a href="{{ url_for('index') }}" class="back-link">← Back</a>
+    <form class="units-form" method="get" action="{{ url_for('weather_page') }}">
+      <input type="hidden" name="city" value="{{ city }}">
+      <input type="hidden" name="view" value="{{ view }}">
+      <label for="units">Units:</label>
+      <select name="units" id="units" onchange="this.form.submit()">
+        <option value="metric" {% if not imperial %}selected{% endif %}>Metric</option>
+        <option value="imperial" {% if imperial %}selected{% endif %}>Imperial</option>
+      </select>
+    </form>
+  </header>
+
+  <div class="layout">
+    <section class="panel current-panel">
+      <h2 class="location">{{ current.location }}</h2>
+      <div class="current-main">
+        <p class="temp">{{ current.temp_display }}{{ temp_unit }}</p>
+        <img class="weather-icon" src="{{ current.icon_url }}" alt="{{ current.condition }}" width="64" height="64"
+             onerror="this.style.display='none'">
+      </div>
+      <p class="condition">{{ current.condition }}</p>
+      <ul class="details">
+        <li>Visibility: {{ current.vis_display }} {{ vis_unit }}</li>
+        <li>Humidity: {{ current.humidity_percent }}%</li>
+        <li>Feels like: {{ current.temp_display }}{{ temp_unit }}</li>
+        <li>Wind: {{ current.wind_display }} {{ speed_unit }}</li>
+        <li>Sunrise: {{ current.sunrise }}</li>
+        <li>Sunset: {{ current.sunset }}</li>
+      </ul>
+    </section>
+
+    <section class="panel forecast-panel">
+      <nav class="forecast-tabs">
+        <a href="{{ url_for('weather_page', city=city, view='daily', units='imperial' if imperial else 'metric') }}"
+           class="tab {% if view == 'daily' %}active{% endif %}">Weekly</a>
+        <a href="{{ url_for('weather_page', city=city, view='hourly', units='imperial' if imperial else 'metric') }}"
+           class="tab {% if view == 'hourly' %}active{% endif %}">Hourly</a>
+      </nav>
+
+      {% if view == 'daily' %}
+      <table class="forecast-table">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th></th>
+            <th>Condition</th>
+            <th>Min</th>
+            <th>Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for day in daily %}
+          <tr>
+            <td>{% if day.date == today %}Today{% else %}{{ day.day_name }}{% endif %}</td>
+            <td><img src="{{ day.icon_url }}" alt="" width="40" height="40" onerror="this.remove()"></td>
+            <td>{{ day.condition }}</td>
+            <td>{{ day.min_display }}{{ temp_unit }}</td>
+            <td>{{ day.max_display }}{{ temp_unit }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <table class="forecast-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Temp</th>
+            <th>Condition</th>
+            <th>Wind</th>
+            <th>Humidity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hour in hourly %}
+          <tr>
+            <td>{{ hour.time }}</td>
+            <td>{{ hour.temp_display }}{{ temp_unit }}</td>
+            <td>{{ hour.condition }}</td>
+            <td>{{ hour.wind_display }} {{ speed_unit }}</td>
+            <td>{{ hour.humidity_percent }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </section>
+  </div>
+</main>
+{% endblock %}
